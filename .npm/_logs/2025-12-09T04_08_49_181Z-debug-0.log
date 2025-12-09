@@ -1,0 +1,37 @@
+0 verbose cli /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/npm
+1 info using npm@11.6.0
+2 info using node@v24.9.0
+3 silly config load:file:/data/data/com.termux/files/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/data/com.termux/files/home/.npmrc
+5 silly config load:file:/data/data/com.termux/files/usr/etc/npmrc
+6 verbose title npm install ws
+7 verbose argv "install" "ws"
+8 verbose logfile logs-max:10 dir:/data/data/com.termux/files/home/.npm/_logs/2025-12-09T04_08_49_181Z-
+9 verbose logfile /data/data/com.termux/files/home/.npm/_logs/2025-12-09T04_08_49_181Z-debug-0.log
+10 silly logfile done cleaning log files
+11 silly packumentCache heap:1174405120 maxSize:293601280 maxEntrySize:146800640
+12 silly idealTree buildDeps
+13 silly fetch manifest ws@*
+14 silly packumentCache full:https://registry.npmjs.org/ws cache-miss
+15 http fetch GET 200 https://registry.npmjs.org/ws 509ms (cache miss)
+16 silly packumentCache full:https://registry.npmjs.org/ws set size:undefined disposed:false
+17 silly fetch manifest bufferutil@^4.0.1
+18 silly packumentCache full:https://registry.npmjs.org/bufferutil cache-miss
+19 http fetch GET 200 https://registry.npmjs.org/bufferutil 46ms (cache miss)
+20 silly packumentCache full:https://registry.npmjs.org/bufferutil set size:undefined disposed:false
+21 silly fetch manifest utf-8-validate@>=5.0.2
+22 silly packumentCache full:https://registry.npmjs.org/utf-8-validate cache-miss
+23 http fetch GET 200 https://registry.npmjs.org/utf-8-validate 42ms (cache miss)
+24 silly packumentCache full:https://registry.npmjs.org/utf-8-validate set size:undefined disposed:false
+25 silly placeDep ROOT ws@8.18.3 OK for:  want: *
+26 silly reify moves {}
+27 http cache ws@https://registry.npmjs.org/ws/-/ws-8.18.3.tgz 0ms (cache hit)
+28 silly tarball no local data for ws@https://registry.npmjs.org/ws/-/ws-8.18.3.tgz. Extracting by manifest.
+29 http fetch GET 200 https://registry.npmjs.org/ws/-/ws-8.18.3.tgz 120ms (cache miss)
+30 silly ADD node_modules/ws
+31 verbose cwd /data/data/com.termux/files/home
+32 verbose os Linux 4.14.186-perf-gd576bbbbeaec
+33 verbose node v24.9.0
+34 verbose npm  v11.6.0
+35 verbose exit 0
+36 info ok

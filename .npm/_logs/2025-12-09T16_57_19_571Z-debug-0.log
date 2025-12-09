@@ -1,0 +1,75 @@
+0 verbose cli /data/data/com.termux/files/usr/bin/node /data/data/com.termux/files/usr/bin/npm
+1 info using npm@11.6.0
+2 info using node@v24.9.0
+3 silly config load:file:/data/data/com.termux/files/usr/lib/node_modules/npm/npmrc
+4 silly config load:file:/data/data/com.termux/files/home/.npmrc
+5 silly config load:file:/data/data/com.termux/files/usr/etc/npmrc
+6 verbose title npm install node-fetch
+7 verbose argv "install" "node-fetch"
+8 verbose logfile logs-max:10 dir:/data/data/com.termux/files/home/.npm/_logs/2025-12-09T16_57_19_571Z-
+9 verbose logfile /data/data/com.termux/files/home/.npm/_logs/2025-12-09T16_57_19_571Z-debug-0.log
+10 silly logfile done cleaning log files
+11 silly packumentCache heap:1174405120 maxSize:293601280 maxEntrySize:146800640
+12 silly idealTree buildDeps
+13 silly fetch manifest node-fetch@*
+14 silly packumentCache full:https://registry.npmjs.org/node-fetch cache-miss
+15 http fetch GET 200 https://registry.npmjs.org/node-fetch 526ms (cache miss)
+16 silly packumentCache full:https://registry.npmjs.org/node-fetch set size:undefined disposed:false
+17 silly placeDep ROOT node-fetch@3.3.2 OK for:  want: *
+18 silly fetch manifest data-uri-to-buffer@^4.0.0
+19 silly packumentCache full:https://registry.npmjs.org/data-uri-to-buffer cache-miss
+20 silly fetch manifest fetch-blob@^3.1.4
+21 silly packumentCache full:https://registry.npmjs.org/fetch-blob cache-miss
+22 silly fetch manifest formdata-polyfill@^4.0.10
+23 silly packumentCache full:https://registry.npmjs.org/formdata-polyfill cache-miss
+24 http fetch GET 200 https://registry.npmjs.org/fetch-blob 142ms (cache miss)
+25 silly packumentCache full:https://registry.npmjs.org/fetch-blob set size:undefined disposed:false
+26 http fetch GET 200 https://registry.npmjs.org/data-uri-to-buffer 264ms (cache miss)
+27 silly packumentCache full:https://registry.npmjs.org/data-uri-to-buffer set size:undefined disposed:false
+28 http fetch GET 200 https://registry.npmjs.org/formdata-polyfill 273ms (cache miss)
+29 silly packumentCache full:https://registry.npmjs.org/formdata-polyfill set size:undefined disposed:false
+30 silly placeDep ROOT data-uri-to-buffer@4.0.1 OK for: node-fetch@3.3.2 want: ^4.0.0
+31 silly placeDep ROOT fetch-blob@3.2.0 OK for: node-fetch@3.3.2 want: ^3.1.4
+32 silly placeDep ROOT formdata-polyfill@4.0.10 OK for: node-fetch@3.3.2 want: ^4.0.10
+33 silly fetch manifest node-domexception@^1.0.0
+34 silly packumentCache full:https://registry.npmjs.org/node-domexception cache-miss
+35 silly fetch manifest web-streams-polyfill@^3.0.3
+36 silly packumentCache full:https://registry.npmjs.org/web-streams-polyfill cache-miss
+37 http fetch GET 200 https://registry.npmjs.org/node-domexception 114ms (cache miss)
+38 silly packumentCache full:https://registry.npmjs.org/node-domexception set size:undefined disposed:false
+39 http fetch GET 200 https://registry.npmjs.org/web-streams-polyfill 119ms (cache miss)
+40 silly packumentCache full:https://registry.npmjs.org/web-streams-polyfill set size:undefined disposed:false
+41 silly placeDep ROOT node-domexception@1.0.0 OK for: fetch-blob@3.2.0 want: ^1.0.0
+42 silly placeDep ROOT web-streams-polyfill@3.3.3 OK for: fetch-blob@3.2.0 want: ^3.0.3
+43 silly reify moves {}
+44 http cache formdata-polyfill@https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz 1ms (cache hit)
+45 http cache fetch-blob@https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz 0ms (cache hit)
+46 http cache data-uri-to-buffer@https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz 0ms (cache hit)
+47 http cache web-streams-polyfill@https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz 0ms (cache hit)
+48 http cache node-fetch@https://registry.npmjs.org/node-fetch/-/node-fetch-3.3.2.tgz 0ms (cache hit)
+49 http cache node-domexception@https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz 0ms (cache hit)
+50 silly tarball no local data for formdata-polyfill@https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz. Extracting by manifest.
+51 silly tarball no local data for fetch-blob@https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz. Extracting by manifest.
+52 silly tarball no local data for data-uri-to-buffer@https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz. Extracting by manifest.
+53 silly tarball no local data for web-streams-polyfill@https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz. Extracting by manifest.
+54 silly tarball no local data for node-fetch@https://registry.npmjs.org/node-fetch/-/node-fetch-3.3.2.tgz. Extracting by manifest.
+55 silly tarball no local data for node-domexception@https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz. Extracting by manifest.
+56 http fetch GET 200 https://registry.npmjs.org/data-uri-to-buffer/-/data-uri-to-buffer-4.0.1.tgz 210ms (cache miss)
+57 http fetch GET 200 https://registry.npmjs.org/fetch-blob/-/fetch-blob-3.2.0.tgz 219ms (cache miss)
+58 http fetch GET 200 https://registry.npmjs.org/formdata-polyfill/-/formdata-polyfill-4.0.10.tgz 224ms (cache miss)
+59 http fetch GET 200 https://registry.npmjs.org/node-domexception/-/node-domexception-1.0.0.tgz 328ms (cache miss)
+60 warn deprecated node-domexception@1.0.0: Use your platform's native DOMException instead
+61 http fetch GET 200 https://registry.npmjs.org/node-fetch/-/node-fetch-3.3.2.tgz 354ms (cache miss)
+62 http fetch GET 200 https://registry.npmjs.org/web-streams-polyfill/-/web-streams-polyfill-3.3.3.tgz 819ms (cache miss)
+63 silly ADD node_modules/web-streams-polyfill
+64 silly ADD node_modules/node-domexception
+65 silly ADD node_modules/formdata-polyfill
+66 silly ADD node_modules/fetch-blob
+67 silly ADD node_modules/data-uri-to-buffer
+68 silly ADD node_modules/node-fetch
+69 verbose cwd /data/data/com.termux/files/home
+70 verbose os Linux 4.14.186-perf-gd576bbbbeaec
+71 verbose node v24.9.0
+72 verbose npm  v11.6.0
+73 verbose exit 0
+74 info ok
