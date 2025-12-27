@@ -3,210 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stream Chat Premium</title>
+    <title>Mi Chat en la Nube</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; 
-            background: #000; color: #eee; display: flex; flex-direction: column; 
-            height: 100vh; overflow: hidden; 
-        }
-
-        #video-container { width: 100%; background: #000; border-bottom: 2px solid #222; flex-shrink: 0; }
-        video { width: 100%; display: block; aspect-ratio: 16/9; }
-
-        /* BARRA DEL CANAL: VERDE VIVO Y CENTRADO */
-        #status-bar {
-            background: #111; padding: 8px 15px; font-size: 10px; color: #00ff00; 
-            font-weight: bold; flex-shrink: 0; border-bottom: 1px solid #222;
-            text-align: center; text-transform: uppercase; letter-spacing: 1.5px;
-        }
-
-        #controles { 
-            display: flex; gap: 10px; padding: 12px; background: #111; 
-            overflow-x: auto; flex-shrink: 0; scrollbar-width: none;
-        }
-        .channel-btn { 
-            background: #222; color: #fff; border: 1px solid #444; 
-            padding: 0 20px; border-radius: 25px; cursor: pointer;
-            white-space: nowrap; font-size: 13px; font-weight: bold; height: 40px;
-        }
-
-        #chat-box { flex-grow: 1; display: flex; flex-direction: column; background: #0a0a0a; overflow: hidden; }
-        #chat { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
-
-        .msg-container { display: flex; flex-direction: column; max-width: 85%; }
-        .user-nick { font-size: 11px; color: #777; margin-bottom: 3px; margin-left: 8px; font-weight: bold; }
-        .bubble { background: #1f1f1f; padding: 10px 16px; border-radius: 18px; border-bottom-left-radius: 4px; font-size: 14px; border: 1px solid #333; }
-        .channel-bubble { background: #332200; border: 1px solid #664400; color: #ffcc00; align-self: center; border-radius: 12px; padding: 6px 20px; font-size: 12px; }
-
-        #input-area { padding: 12px; background: #111; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; flex-shrink: 0; }
-        input { background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 25px; outline: none; }
-        #user-input { width: 80px; font-weight: bold; color: #007bff; }
-        #msg-input { flex-grow: 1; min-width: 0; }
-        #btn-enviar { background: #007bff; color: white; border: none; width: 46px; height: 46px; min-width: 46px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+        body { font-family: sans-serif; background-color: #f4f4f9; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        #chat-box { width: 100%; max-width: 500px; height: 400px; border: 1px solid #ccc; background: #fff; overflow-y: scroll; padding: 10px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .mensaje { margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #eee; }
+        form { display: flex; gap: 10px; width: 100%; max-width: 500px; }
+        input[name="usuario"] { width: 30%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        input[name="mensaje"] { flex-grow: 1; padding: 10px; border-radius: 5px; border: 1px solid #ccc; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
-    <div id="video-container">
-        <video id="reproductor" controls autoplay>
-            <source id="video-source" src="" type="video/mp4">
-        </video>
-    </div>
-
-    <div id="status-bar">
-        <span id="nombre-canal-actual">---</span>
-    </div>
-
-    <div id="controles">
-        <button class="channel-btn" onclick="cambiarVideo(0)">🌌 UNIVERSAL Tv</button>
-        <button class="channel-btn" onclick="cambiarVideo(1)">😱 CINE TERROR</button>
-        <button class="channel-btn" onclick="cambiarVideo(2)">🗿 CLASSIC</button>
-        <button class="channel-btn" onclick="cambiarVideo(3)">🧋 BUM Tv</button>
-        <button class="channel-btn" onclick="cambiarVideo(4)">🏧 AUTÉNTICA Tv</button>
-        <button class="channel-btn" onclick="cambiarVideo(5)">🎺 ACTIVA Tv</button>
-        <button class="channel-btn" onclick="cambiarVideo(6)">🎙️ STUDIO DELTA</button>
-    </div>
+    <h2>Chat Global (Render)</h2>
 
     <div id="chat-box">
-        <div id="chat"></div>
-        <div id="input-area">
-            <input type="text" id="user-input" placeholder="Name">
-            <input type="text" id="msg-input" placeholder="Escribir...">
-            <button id="btn-enviar" onclick="enviarMensaje()">➤</button>
-        </div>
+        {% if mensajes %}
+            {% for msg in mensajes %}
+                <div class="mensaje">{{ msg }}</div>
+            {% endfor %}
+        {% else %}
+            <p style="color: gray;">No hay mensajes aún. ¡Sé el primero!</p>
+        {% endif %}
     </div>
 
-        <script>
-        const listaVideos = [
-            "https://imagenuniversaltv.net:3771/live/iutvlive.m3u8",
-            "https://is.gd/GyYDz0",
-            "https://is.gd/7CaWXu", 
-            "https://movil.ejeserver.com/live/visiondorada.m3u8", 
-            "https://live.obslivestream.com/autenticatvmux/index.m3u8",
-            "https://streamtv.mediasector.es/hls/activatv/index.m3u8", 
-            "https://5ce9406b73c33.streamlock.net/RSD/ngrp:livestream_all/playlist.m3u8"
-        ];
-        const nombresCanales = ["UNIVERSAL Tv", "CINE TERROR", "CLASSIC", "BUM Tv", "AUTÉNTICA Tv", "ACTIVA Tv", "STUDIO DELTA"];
-        let videoActualIdx = -1;
+    <form action="/enviar" method="POST">
+        <input type="text" name="usuario" placeholder="Nombre" required>
+        <input type="text" name="mensaje" placeholder="Escribe un mensaje..." required>
+        <button type="submit">Enviar</button>
+    </form>
 
-        // --- CONFIGURACIÓN DE SCROLL POR TIEMPO ---
-        let pausaScroll = false;
-        let temporizadorPausa;
-        const SEGUNDOS_DE_PAUSA = 10; // <--- CAMBIA AQUÍ LOS SEGUNDOS QUE QUIERAS
-
-        window.onload = () => {
-            const savedNick = localStorage.getItem('chat_nick');
-            if (savedNick) {
-                document.getElementById('user-input').value = savedNick;
-                document.getElementById('user-input').disabled = true;
-            }
-            
-            // Detectar cuando el usuario mueve el scroll manualmente
-            const chatDiv = document.getElementById('chat');
-            chatDiv.addEventListener('scroll', () => {
-                // Si el usuario sube, activamos la pausa
-                const estaAlFinal = (chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight) < 20;
-                if (!estaAlFinal) {
-                    activarPausaScroll();
-                }
-            });
-        };
-
-        function activarPausaScroll() {
-            pausaScroll = true;
-            clearTimeout(temporizadorPausa);
-            // Después de X segundos, permitimos que el scroll vuelva a bajar
-            temporizadorPausa = setTimeout(() => {
-                pausaScroll = false;
-            }, SEGUNDOS_DE_PAUSA * 1000);
-        }
-
-        async function cambiarVideo(idx) {
-            await fetch('/messages', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user: "CANAL", msg: nombresCanales[idx]})
-            });
-            await fetch('/messages', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user: "SISTEMA", msg: "/video:" + idx})
-            });
-        }
-
-        async function enviarMensaje() {
-            const userInput = document.getElementById('user-input');
-            const msgInput = document.getElementById('msg-input');
-            const user = userInput.value.trim() || 'Anónimo';
-            const msg = msgInput.value.trim();
-            if (!msg) return;
-
-            if (!localStorage.getItem('chat_nick') && user !== 'Anónimo') {
-                localStorage.setItem('chat_nick', user);
-                userInput.disabled = true;
-            }
-
-            await fetch('/messages', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({user, msg})
-            });
-            msgInput.value = '';
-            pausaScroll = false; // Al enviar mensaje propio, bajamos al final inmediatamente
-            actualizar();
-        }
-
-        function renderizarChat(textoRaw) {
-            const chatDiv = document.getElementById('chat');
-            const lineas = textoRaw.trim().split('\n');
-            chatDiv.innerHTML = '';
-            
-            lineas.forEach(linea => {
-                if(!linea.includes(':')) return;
-                const partes = linea.split(':');
-                const nombre = partes[0].trim();
-                const mensaje = partes.slice(1).join(':').trim();
-                const container = document.createElement('div');
-                container.className = 'msg-container';
-                if(nombre === "CANAL") {
-                    container.innerHTML = `<div class="channel-bubble">${mensaje}</div>`;
-                } else if(nombre !== "SISTEMA") {
-                    container.innerHTML = `<div class="user-nick">${nombre}</div><div class="bubble">${mensaje}</div>`;
-                } else { return; }
-                chatDiv.appendChild(container);
-            });
-
-            // Solo baja si NO estamos en tiempo de pausa
-            if (!pausaScroll) {
-                chatDiv.scrollTop = chatDiv.scrollHeight;
-            }
-        }
-
-        async function actualizar() {
-            try {
-                const res = await fetch('/messages');
-                const data = await res.json();
-                renderizarChat(data.messages);
-
-                let serverVideoIdx = parseInt(data.video_index);
-                if (serverVideoIdx !== videoActualIdx && serverVideoIdx >= 0) {
-                    videoActualIdx = serverVideoIdx;
-                    document.getElementById('nombre-canal-actual').innerText = nombresCanales[videoActualIdx];
-                    const video = document.getElementById('reproductor');
-                    const source = document.getElementById('video-source');
-                    source.src = listaVideos[videoActualIdx];
-                    video.load();
-                    video.play().catch(e => {});
-                }
-            } catch (e) { }
-        }
-
-        setInterval(actualizar, 2000);
-
-        document.getElementById('msg-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') enviarMensaje();
-        });
+    <script>
+        // Auto-scroll al final del chat al cargar
+        var chatBox = document.getElementById("chat-box");
+        chatBox.scrollTop = chatBox.scrollHeight;
     </script>
+
 </body>
 </html>
