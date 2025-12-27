@@ -1,37 +1,50 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, request, jsonify, render_template
 import os
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 
-# Ruta del archivo donde se guardan los mensajes
+# Archivos de datos
 CHAT_FILE = "chat.txt"
+VIDEO_FILE = "video_actual.txt"
 
-# Crear el archivo chat.txt si no existe para evitar errores
-if not os.path.exists(CHAT_FILE):
-    with open(CHAT_FILE, "w") as f:
-        f.write("")
+def write_file(filename, content):
+    with open(filename, "w") as f:
+        f.write(content)
+
+def read_file(filename, default="0"):
+    if not os.path.exists(filename):
+        return default
+    with open(filename, "r") as f:
+        return f.read()
 
 @app.route('/')
 def index():
-    # Leer mensajes del archivo
-    with open(CHAT_FILE, "r") as f:
-        mensajes = f.readlines()
-    return render_template('index.html', mensajes=mensajes)
+    # Flask buscará index.html dentro de la carpeta /templates
+    return render_template("index.html")
 
-@app.route('/enviar', methods=['POST'])
-def enviar():
-    usuario = request.form.get('usuario', 'Anónimo')
-    mensaje = request.form.get('mensaje', '')
-    
-    if mensaje:
+@app.route('/messages', methods=['GET', 'POST'])
+def messages():
+    if request.method == 'POST':
+        user = request.json.get('user', 'Anónimo')
+        msg = request.json.get('msg', '')
+        if msg.startswith("/video:"):
+            video_index = msg.split(":")[1]
+            write_file(VIDEO_FILE, video_index)
+        
         with open(CHAT_FILE, "a") as f:
-            f.write(f"{usuario}: {mensaje}\n")
+            f.write(f"{user}: {msg}\n")
+        return jsonify({"status": "ok"})
+    
+    msgs = ""
+    if os.path.exists(CHAT_FILE):
+        with open(CHAT_FILE, "r") as f:
+            msgs = f.read()
             
-    return redirect('/')
+    current_video = read_file(VIDEO_FILE)
+    return jsonify({"messages": msgs, "video_index": current_video})
 
 if __name__ == '__main__':
-    # AJUSTE PARA RENDER: Usa el puerto que el servidor asigne
+    # Ajuste vital para Render
     port = int(os.environ.get("PORT", 8080))
-    # host='0.0.0.0' es obligatorio para que sea accesible desde internet
     app.run(host='0.0.0.0', port=port)
     
