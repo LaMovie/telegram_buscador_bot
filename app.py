@@ -11,26 +11,39 @@ REPO_DIR = os.getcwd()
 
 def sync_to_github():
     try:
-        # 1. Configurar la URL con el Token
+        # Configurar la URL con el Token
         remote_url = GITHUB_REPO_URL.replace("https://", f"https://{GITHUB_TOKEN}@")
-        repo = Repo(REPO_DIR)
         
-        # 2. Identificarse (Indispensable para que GitHub acepte el commit)
+        # Intentar abrir el repo, si no existe, inicializarlo
+        try:
+            repo = Repo(REPO_DIR)
+        except:
+            repo = Repo.init(REPO_DIR)
+        
+        # Configurar identidad (evita errores de autor)
         with repo.config_writer() as cw:
             cw.set_value("user", "name", "RenderServer")
             cw.set_value("user", "email", "render@example.com")
         
-        # 3. Guardar cambios
+        # Asegurar que el 'origin' esté bien configurado
+        if 'origin' in repo.remotes:
+            origin = repo.remote(name='origin')
+            origin.set_url(remote_url)
+        else:
+            origin = repo.create_remote('origin', remote_url)
+
+        # Guardar cambios
         repo.index.add([CHAT_FILE, VIDEO_FILE, CONTROLES_FILE])
         repo.index.commit("Update chat data")
         
-        # 4. Enviar a GitHub
-        origin = repo.remote(name='origin')
-        origin.set_url(remote_url)
-        origin.push()
-        print("Sincronizado con GitHub exitosamente")
+        # Forzar el envío a la rama principal (main o master)
+        # Usamos 'force=True' por si hay conflictos de historial
+        origin.push(refspec='HEAD:main', force=True) 
+        print(">>> ¡ÉXITO! Sincronizado con GitHub")
+        
     except Exception as e:
-        print(f"Error al sincronizar: {e}")
+        print(f">>> ERROR al sincronizar: {e}")
+        
 
 
 # Archivos de datos
