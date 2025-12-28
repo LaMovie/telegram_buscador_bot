@@ -5,46 +5,46 @@ from git import Repo
 app = Flask(__name__, template_folder='templates')
 
 # --- CONFIGURACIÓN DE GITHUB ---
-GITHUB_REPO_URL = "https://github.com/LaMovie/cine_chat.git" # <--- CAMBIA ESTO
+# RECUERDA: Cambia esto por tu URL real
+GITHUB_REPO_URL = "https://github.com/LaMovie/cine_chat.git"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_DIR = os.getcwd()
 
+# --- CONFIGURACIÓN DE SEGURIDAD (Filtro) ---
+PALABRAS_PROHIBIDAS = ["tonto", "idiota", "spam", "basura"] 
+
+def filtrar_mensaje(texto):
+    for palabra in PALABRAS_PROHIBIDAS:
+        # Reemplaza la palabra por asteriscos según su longitud
+        texto = texto.replace(palabra, "*" * len(palabra))
+    return texto
+
+# Función para guardar en GitHub permanentemente
 def sync_to_github():
     try:
-        # Configurar la URL con el Token
         remote_url = GITHUB_REPO_URL.replace("https://", f"https://{GITHUB_TOKEN}@")
-        
-        # Intentar abrir el repo, si no existe, inicializarlo
         try:
             repo = Repo(REPO_DIR)
         except:
             repo = Repo.init(REPO_DIR)
         
-        # Configurar identidad (evita errores de autor)
         with repo.config_writer() as cw:
             cw.set_value("user", "name", "RenderServer")
             cw.set_value("user", "email", "render@example.com")
         
-        # Asegurar que el 'origin' esté bien configurado
         if 'origin' in repo.remotes:
             origin = repo.remote(name='origin')
             origin.set_url(remote_url)
         else:
             origin = repo.create_remote('origin', remote_url)
 
-        # Guardar cambios
         repo.index.add([CHAT_FILE, VIDEO_FILE, CONTROLES_FILE])
-        repo.index.commit("Update chat data")
-        
-        # Forzar el envío a la rama principal (main o master)
-        # Usamos 'force=True' por si hay conflictos de historial
-        origin.push(refspec='HEAD:main', force=True) 
-        print(">>> ¡ÉXITO! Sincronizado con GitHub")
-        
+        repo.index.commit("Update data from server")
+        # Cambia 'main' por 'master' si es necesario
+        origin.push(refspec='HEAD:main', force=True)
+        print(">>> Sincronizado con GitHub")
     except Exception as e:
-        print(f">>> ERROR al sincronizar: {e}")
-        
-
+        print(f">>> Error sincronizando: {e}")
 
 # Archivos de datos
 CHAT_FILE = "chat.txt"
@@ -69,42 +69,48 @@ def index():
 def messages():
     if request.method == 'POST':
         user = request.json.get('user', 'Anónimo')
-        msg = request.json.get('msg', '')
+        msg = request.json.get('msg', '').strip()
         
-        # Comandos globales de administración
+        # --- COMANDOS DE ADMINISTRADOR ---
+        if msg == "CLR":
+            write_file(CHAT_FILE, "SISTEMA: El chat ha sido reiniciado por el administrador.\n")
+            sync_to_github()
+            return jsonify({"status": "ok", "hide": True})
+        
         if msg == "CMD":
             write_file(CONTROLES_FILE, "flex")
             sync_to_github()
-            return jsonify({"status": "ok", "hide": True}) # hide: True para que no se escriba en el chat
+            return jsonify({"status": "ok", "hide": True})
         
         if msg == "CMX":
             write_file(CONTROLES_FILE, "none")
             sync_to_github()
             return jsonify({"status": "ok", "hide": True})
 
+        # --- LÓGICA DE VIDEO ---
         if msg.startswith("/video:"):
             video_index = msg.split(":")[1]
             write_file(VIDEO_FILE, video_index)
+            sync_to_github()
+            return jsonify({"status": "ok"})
         
+        # --- MENSAJES NORMALES ---
+        msg_filtrado = filtrar_mensaje(msg)
         with open(CHAT_FILE, "a") as f:
-            f.write(f"{user}: {msg}\n")
+            f.write(f"{user}: {msg_filtrado}\n")
         
         sync_to_github()
         return jsonify({"status": "ok"})
     
-    msgs = ""
-    if os.path.exists(CHAT_FILE):
-        with open(CHAT_FILE, "r") as f:
-            msgs = f.read()
-            
-    current_video = read_file(VIDEO_FILE)
-    # Leemos el estado de los controles (none o flex)
-    controles_visibilidad = read_file(CONTROLES_FILE, "none")
+    # Respuesta para el método GET (actualización automática)
+    msgs = read_file(CHAT_FILE, "")
+    current_video = read_file(VIDEO_FILE, "0")
+    controles = read_file(CONTROLES_FILE, "none")
     
     return jsonify({
         "messages": msgs, 
         "video_index": current_video,
-        "controles": controles_visibilidad
+        "controles": controles
     })
 
 if __name__ == '__main__':
