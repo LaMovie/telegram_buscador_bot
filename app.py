@@ -5,7 +5,7 @@ from git import Repo
 app = Flask(__name__, template_folder='templates')
 
 # --- CONFIGURACIÓN DE GITHUB ---
-GITHUB_REPO_URL = "https://github.com/TU_USUARIO/TU_REPO.git" # <--- CAMBIA ESTO
+GITHUB_REPO_URL = "https://github.com/LaMovie/cine_chat.git" # <--- CAMBIA ESTO
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_DIR = os.getcwd()
 
