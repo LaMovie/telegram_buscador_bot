@@ -92,8 +92,8 @@
     ];
     const nombresCanales = ["UNIVERSAL Tv", "CINE TERROR", "BUM Tv", "CLASSIC"];
     let videoActualIdx = -1;
+    let visibilidadActual = "none";
 
-    // --- CONFIGURACIÓN DE SCROLL POR TIEMPO ---
     let pausaScroll = false;
     let temporizadorPausa;
     const SEGUNDOS_DE_PAUSA = 10;
@@ -108,18 +108,14 @@
         const chatDiv = document.getElementById('chat');
         chatDiv.addEventListener('scroll', () => {
             const estaAlFinal = (chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight) < 20;
-            if (!estaAlFinal) {
-                activarPausaScroll();
-            }
+            if (!estaAlFinal) activarPausaScroll();
         });
     };
 
     function activarPausaScroll() {
         pausaScroll = true;
         clearTimeout(temporizadorPausa);
-        temporizadorPausa = setTimeout(() => {
-            pausaScroll = false;
-        }, SEGUNDOS_DE_PAUSA * 1000);
+        temporizadorPausa = setTimeout(() => { pausaScroll = false; }, SEGUNDOS_DE_PAUSA * 1000);
     }
 
     async function cambiarVideo(idx) {
@@ -143,26 +139,12 @@
 
         if (!msg) return;
 
-        // --- LÓGICA DE COMANDOS SECRETOS ---
-        if (msg === "CMD") {
-            document.getElementById('controles').style.display = 'flex';
-            msgInput.value = ''; // Borra el comando para que nadie lo vea
-            return; // Detiene el envío, no llega al chat
-        }
-
-        if (msg === "CMX") {
-            document.getElementById('controles').style.display = 'none';
-            msgInput.value = ''; // Borra el comando
-            return; // Detiene el envío
-        }
-        // ----------------------------------
-
         if (!localStorage.getItem('chat_nick') && user !== 'Anónimo') {
             localStorage.setItem('chat_nick', user);
             userInput.disabled = true;
         }
 
-        await fetch('/messages', {
+        const res = await fetch('/messages', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({user, msg})
@@ -189,20 +171,25 @@
                 container.innerHTML = `<div class="channel-bubble">${mensaje}</div>`;
             } else if(nombre !== "SISTEMA") {
                 container.innerHTML = `<div class="user-nick">${nombre}</div><div class="bubble">${mensaje}</div>`;
-            } else { return; }
+            }
             chatDiv.appendChild(container);
         });
 
-        if (!pausaScroll) {
-            chatDiv.scrollTop = chatDiv.scrollHeight;
-        }
+        if (!pausaScroll) chatDiv.scrollTop = chatDiv.scrollHeight;
     }
 
     async function actualizar() {
         try {
             const res = await fetch('/messages');
             const data = await res.json();
+            
             renderizarChat(data.messages);
+
+            // Control Global de Visibilidad de Canales
+            if (data.controles !== visibilidadActual) {
+                visibilidadActual = data.controles;
+                document.getElementById('controles').style.display = visibilidadActual;
+            }
 
             let serverVideoIdx = parseInt(data.video_index);
             if (serverVideoIdx !== videoActualIdx && serverVideoIdx >= 0) {
