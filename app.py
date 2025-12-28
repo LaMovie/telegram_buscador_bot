@@ -5,21 +5,10 @@ from git import Repo
 app = Flask(__name__, template_folder='templates')
 
 # --- CONFIGURACIÓN DE GITHUB ---
-# RECUERDA: Cambia esto por tu URL real
 GITHUB_REPO_URL = "https://github.com/LaMovie/cine_chat.git"
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
 REPO_DIR = os.getcwd()
 
-# --- CONFIGURACIÓN DE SEGURIDAD (Filtro) ---
-PALABRAS_PROHIBIDAS = ["tonto", "idiota", "spam", "basura"] 
-
-def filtrar_mensaje(texto):
-    for palabra in PALABRAS_PROHIBIDAS:
-        # Reemplaza la palabra por asteriscos según su longitud
-        texto = texto.replace(palabra, "*" * len(palabra))
-    return texto
-
-# Función para guardar en GitHub permanentemente
 def sync_to_github():
     try:
         remote_url = GITHUB_REPO_URL.replace("https://", f"https://{GITHUB_TOKEN}@")
@@ -39,12 +28,11 @@ def sync_to_github():
             origin = repo.create_remote('origin', remote_url)
 
         repo.index.add([CHAT_FILE, VIDEO_FILE, CONTROLES_FILE])
-        repo.index.commit("Update data from server")
-        # Cambia 'main' por 'master' si es necesario
-        origin.push(refspec='HEAD:main', force=True)
-        print(">>> Sincronizado con GitHub")
+        repo.index.commit("Update chat data")
+        origin.push(refspec='HEAD:main', force=True) 
+        print(">>> ¡ÉXITO! Sincronizado con GitHub")
     except Exception as e:
-        print(f">>> Error sincronizando: {e}")
+        print(f">>> ERROR al sincronizar: {e}")
 
 # Archivos de datos
 CHAT_FILE = "chat.txt"
@@ -69,14 +57,15 @@ def index():
 def messages():
     if request.method == 'POST':
         user = request.json.get('user', 'Anónimo')
-        msg = request.json.get('msg', '').strip()
+        msg = request.json.get('msg', '')
         
-        # --- COMANDOS DE ADMINISTRADOR ---
+        # --- COMANDOS DE ADMINISTRACIÓN ---
         if msg == "CLR":
-            write_file(CHAT_FILE, "SISTEMA: El chat ha sido reiniciado por el administrador.\n")
+            # Borra el contenido del chat y deja una notificación del sistema
+            write_file(CHAT_FILE, "SISTEMA: Chat reiniciado\n")
             sync_to_github()
             return jsonify({"status": "ok", "hide": True})
-        
+
         if msg == "CMD":
             write_file(CONTROLES_FILE, "flex")
             sync_to_github()
@@ -87,7 +76,6 @@ def messages():
             sync_to_github()
             return jsonify({"status": "ok", "hide": True})
 
-        # --- LÓGICA DE VIDEO ---
         if msg.startswith("/video:"):
             video_index = msg.split(":")[1]
             write_file(VIDEO_FILE, video_index)
@@ -95,22 +83,25 @@ def messages():
             return jsonify({"status": "ok"})
         
         # --- MENSAJES NORMALES ---
-        msg_filtrado = filtrar_mensaje(msg)
         with open(CHAT_FILE, "a") as f:
-            f.write(f"{user}: {msg_filtrado}\n")
+            f.write(f"{user}: {msg}\n")
         
         sync_to_github()
         return jsonify({"status": "ok"})
     
-    # Respuesta para el método GET (actualización automática)
-    msgs = read_file(CHAT_FILE, "")
-    current_video = read_file(VIDEO_FILE, "0")
-    controles = read_file(CONTROLES_FILE, "none")
+    # Respuesta GET
+    msgs = ""
+    if os.path.exists(CHAT_FILE):
+        with open(CHAT_FILE, "r") as f:
+            msgs = f.read()
+            
+    current_video = read_file(VIDEO_FILE)
+    controles_visibilidad = read_file(CONTROLES_FILE, "none")
     
     return jsonify({
         "messages": msgs, 
         "video_index": current_video,
-        "controles": controles
+        "controles": controles_visibilidad
     })
 
 if __name__ == '__main__':
