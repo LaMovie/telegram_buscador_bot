@@ -3,72 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cine Chat Global</title>
-    <style>
-        body { margin: 0; font-family: sans-serif; background: #000; color: white; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-        
-        /* Contenedor de Video */
-        #video-container { width: 100%; background: #000; position: relative; }
-        video { width: 100%; aspect-ratio: 16/9; display: block; }
-        
-        #nombre-canal-actual { 
-            position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.6); 
-            padding: 5px 10px; border-radius: 5px; font-size: 0.8em; color: #0f0;
-        }
+    <title>CINE CHAT</title>
+<style>
+    body { 
+        font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; 
+        background: #000; color: #eee; display: flex; flex-direction: column; 
+        height: 100dvh; 
+        overflow: hidden; 
+    }
+    #video-container { width: 100%; background: #000; border-bottom: 2px solid #222; flex-shrink: 0; }
+    video { width: 100%; display: block; aspect-ratio: 16/9; }
 
-        /* Botones de Canales (Controlados por Servidor) */
-        #controles { 
-            display: none; /* Se activa con CMD */
-            flex-wrap: wrap; gap: 5px; padding: 10px; background: #111; justify-content: center;
-        }
-        button { 
-            background: #333; color: white; border: 1px solid #444; 
-            padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8em;
-        }
-        button:hover { background: #555; }
+    #status-bar {
+        background: #111; padding: 8px 15px; font-size: 10px; color: #00ff00; 
+        font-weight: bold; flex-shrink: 0; border-bottom: 1px solid #222;
+        text-align: center; text-transform: uppercase; letter-spacing: 1.5px;
+    }
 
-        /* Área de Chat */
-        #chat { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; background: #0a0a0a; }
-        .msg-container { display: flex; flex-direction: column; margin-bottom: 5px; }
-        .user-nick { font-size: 0.75em; color: #888; margin-bottom: 2px; margin-left: 5px; }
-        .bubble { 
-            background: #222; padding: 8px 12px; border-radius: 15px; 
-            border-bottom-left-radius: 2px; max-width: 80%; align-self: flex-start; line-height: 1.4;
-        }
-        .channel-bubble { 
-            align-self: center; background: rgba(0, 255, 0, 0.1); 
-            color: #0f0; font-size: 0.7em; padding: 4px 10px; border-radius: 10px; border: 1px solid #0f0;
-        }
+    #controles { 
+        display: none; gap: 10px; padding: 12px; background: #111; 
+        overflow-x: auto; flex-shrink: 0; scrollbar-width: none;
+        transition: all 0.3s ease;
+    }
+    .channel-btn { 
+        background: #222; color: #fff; border: 1px solid #444; 
+        padding: 0 20px; border-radius: 25px; cursor: pointer;
+        white-space: nowrap; font-size: 13px; font-weight: bold; height: 40px;
+    }
 
-        /* Input de Mensajes */
-        #input-area { padding: 10px; background: #111; display: flex; gap: 8px; align-items: center; }
-        #user-input { width: 80px; background: #222; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 5px; }
-        #msg-input { flex: 1; background: #222; border: 1px solid #444; color: #fff; padding: 8px; border-radius: 5px; outline: none; }
-        #send-btn { background: #007bff; border: none; color: white; padding: 8px 15px; border-radius: 5px; font-weight: bold; }
-    </style>
+    #chat-box { 
+        flex-grow: 1; 
+        display: flex; 
+        flex-direction: column; 
+        background: #0a0a0a; 
+        overflow: hidden;
+        min-height: 0; 
+    }
+    #chat { flex-grow: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; }
+
+    .msg-container { display: flex; flex-direction: column; max-width: 85%; }
+    .user-nick { font-size: 11px; color: #777; margin-bottom: 3px; margin-left: 8px; font-weight: bold; }
+    .bubble { background: #1f1f1f; padding: 10px 16px; border-radius: 18px; border-bottom-left-radius: 4px; font-size: 14px; border: 1px solid #333; }
+    .channel-bubble { background: #332200; border: 1px solid #664400; color: #ffcc00; align-self: center; border-radius: 12px; padding: 6px 20px; font-size: 12px; }
+
+    #input-area { padding: 12px; background: #111; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; flex-shrink: 0; }
+    input { background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 25px; outline: none; }
+    #user-input { width: 80px; font-weight: bold; color: #007bff; }
+    #msg-input { flex-grow: 1; min-width: 0; }
+    #btn-enviar { background: #007bff; color: white; border: none; width: 46px; height: 46px; min-width: 46px; border-radius: 50%; font-size: 20px; cursor: pointer; }
+</style>
 </head>
 <body>
 
     <div id="video-container">
-        <div id="nombre-canal-actual">Cargando...</div>
-        <video id="reproductor" controls playsinline>
-            <source id="video-source" src="" type="application/x-mpegURL">
+        <video id="reproductor" controls autoplay>
+            <source id="video-source" src="" type="video/mp4">
         </video>
     </div>
 
-    <div id="controles">
-        <button onclick="cambiarVideo(0)">UNIVERSAL Tv</button>
-        <button onclick="cambiarVideo(1)">CINE TERROR</button>
-        <button onclick="cambiarVideo(2)">BUM Tv</button>
-        <button onclick="cambiarVideo(3)">CLASSIC</button>
+    <div id="status-bar">
+        <span id="nombre-canal-actual">---</span>
     </div>
 
-    <div id="chat"></div>
+    <div id="controles">
+        <button class="channel-btn" onclick="cambiarVideo(0)">🌌 UNIVERSAL Tv</button>
+        <button class="channel-btn" onclick="cambiarVideo(1)">😱 CINE TERROR</button>
+        <button class="channel-btn" onclick="cambiarVideo(2)">🧋 BUM Tv</button>
+        <button class="channel-btn" onclick="cambiarVideo(3)">🗿 CLASSIC</button>
+    </div>
 
-    <div id="input-area">
-        <input type="text" id="user-input" placeholder="Nick">
-        <input type="text" id="msg-input" placeholder="Escribe un mensaje...">
-        <button id="send-btn" onclick="enviarMensaje()">➤</button>
+    <div id="chat-box">
+        <div id="chat"></div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Name">
+            <input type="text" id="msg-input" placeholder="Escribir...">
+            <button id="btn-enviar" onclick="enviarMensaje()">➤</button>
+        </div>
     </div>
 
 <script>
@@ -79,11 +89,12 @@
         "https://is.gd/7CaWXu"
     ];
     const nombresCanales = ["UNIVERSAL Tv", "CINE TERROR", "BUM Tv", "CLASSIC"];
-    
     let videoActualIdx = -1;
     let visibilidadActual = "none";
+
     let pausaScroll = false;
     let temporizadorPausa;
+    const SEGUNDOS_DE_PAUSA = 10;
 
     window.onload = () => {
         const savedNick = localStorage.getItem('chat_nick');
@@ -94,24 +105,24 @@
         
         const chatDiv = document.getElementById('chat');
         chatDiv.addEventListener('scroll', () => {
-            const estaAlFinal = (chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight) < 30;
-            if (!estaAlFinal) {
-                pausaScroll = true;
-                clearTimeout(temporizadorPausa);
-                temporizadorPausa = setTimeout(() => { pausaScroll = false; }, 10000);
-            }
+            const estaAlFinal = (chatDiv.scrollHeight - chatDiv.scrollTop - chatDiv.clientHeight) < 20;
+            if (!estaAlFinal) activarPausaScroll();
         });
         actualizar();
     };
 
+    function activarPausaScroll() {
+        pausaScroll = true;
+        clearTimeout(temporizadorPausa);
+        temporizadorPausa = setTimeout(() => { pausaScroll = false; }, SEGUNDOS_DE_PAUSA * 1000);
+    }
+
     async function cambiarVideo(idx) {
-        // Primero anunciamos el cambio en el chat
         await fetch('/messages', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({user: "CANAL", msg: "Sintonizando: " + nombresCanales[idx]})
+            body: JSON.stringify({user: "CANAL", msg: nombresCanales[idx]})
         });
-        // Luego cambiamos el video globalmente
         await fetch('/messages', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -127,7 +138,6 @@
 
         if (!msg) return;
 
-        // Guardar nick
         if (!localStorage.getItem('chat_nick') && user !== 'Anónimo') {
             localStorage.setItem('chat_nick', user);
             userInput.disabled = true;
@@ -151,14 +161,14 @@
         
         lineas.forEach(linea => {
             if(!linea.includes(':')) return;
-            const [nombre, ...mensajePartes] = linea.split(':');
-            const mensaje = mensajePartes.join(':').trim();
+            const partes = linea.split(':');
+            const nombre = partes[0].trim();
+            const mensaje = partes.slice(1).join(':').trim();
             const container = document.createElement('div');
             container.className = 'msg-container';
-            
-            if(nombre.trim() === "CANAL") {
+            if(nombre === "CANAL") {
                 container.innerHTML = `<div class="channel-bubble">${mensaje}</div>`;
-            } else if(nombre.trim() !== "SISTEMA") {
+            } else if(nombre !== "SISTEMA") {
                 container.innerHTML = `<div class="user-nick">${nombre}</div><div class="bubble">${mensaje}</div>`;
             }
             chatDiv.appendChild(container);
@@ -174,13 +184,11 @@
             
             renderizarChat(data.messages);
 
-            // Sincronizar Controles (CMD/CMX)
             if (data.controles !== visibilidadActual) {
                 visibilidadActual = data.controles;
                 document.getElementById('controles').style.display = visibilidadActual;
             }
 
-            // Sincronizar Video
             let serverVideoIdx = parseInt(data.video_index);
             if (serverVideoIdx !== videoActualIdx && serverVideoIdx >= 0) {
                 videoActualIdx = serverVideoIdx;
@@ -189,9 +197,9 @@
                 const source = document.getElementById('video-source');
                 source.src = listaVideos[videoActualIdx];
                 video.load();
-                video.play().catch(e => console.log("Auto-play bloqueado"));
+                video.play().catch(e => {});
             }
-        } catch (e) { console.error("Error de conexión"); }
+        } catch (e) { }
     }
 
     setInterval(actualizar, 2000);
