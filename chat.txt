@@ -1,2 +1,3 @@
 SISTEMA: Chat reiniciado
 CANAL: POP WORLD
+CANAL: BUM Tv
